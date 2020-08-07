@@ -2,6 +2,8 @@
 using RedditAlerter.App.Models;
 using RedditSharp;
 using RedditSharp.Things;
+using SendGrid;
+using SendGrid.Helpers.Mail;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -22,6 +24,8 @@ namespace RedditAlerter.App
         private static async Task Main(string[] args)
         {
             var config = JsonConvert.DeserializeObject<AlerterConfig>(await File.ReadAllTextAsync("config.json"));
+
+            TwilioClient.Init(config.TwilioAccountSid, config.TwilioAuthToken);
 
             var webAgent = new BotWebAgent(config.RedditUsername, config.RedditPassword, config.AppClientId, config.AppClientSecret, "https://localhost:8080");
             var reddit = new Reddit(webAgent, false);
@@ -69,9 +73,7 @@ namespace RedditAlerter.App
                     break;
 
                 // got a match
-                Console.WriteLine($"[{alert.Name}] {post.Title} - {post.Url}");
-
-                TwilioClient.Init(config.TwilioAccountSid, config.TwilioAuthToken);
+                Console.WriteLine($"{{{alert.Name}}} {post.Title} - {post.Url}");
 
                 bool retry;
                 do
@@ -79,13 +81,11 @@ namespace RedditAlerter.App
                     retry = false;
                     try
                     {
-                        var message = await MessageResource.CreateAsync(
+                        var sms = await MessageResource.CreateAsync(
                             body: $"{post.Title} - {post.Url}",
                             from: new Twilio.Types.PhoneNumber(config.TwilioFromNumber),
                             to: new Twilio.Types.PhoneNumber(config.TwilioToNumber)
                         );
-
-                        return;
                     }
                     catch (ApiException ex)
                     {
@@ -96,6 +96,21 @@ namespace RedditAlerter.App
                         }
                     }
                 } while (retry);
+
+                var client = new SendGridClient(config.SendGridApiKey);
+
+                var msg = new SendGridMessage()
+                {
+                    From = new EmailAddress(config.SendGridFromEmail),
+                    Subject = $"{post.Title}",
+                    HtmlContent = $"<p><a href=\"https://reddit.com{post.Permalink}\">{post.Title}</a></p><p><a href=\"{post.Url}\">{post.Url}</a></p>"
+                };
+
+                msg.AddTo(new EmailAddress(config.SendGridToEmail));
+                var response = await client.SendEmailAsync(msg);
+
+                // notification sent
+                return;
             }
 
             Console.WriteLine($"[ignored] {post.Title} - {post.Url}");

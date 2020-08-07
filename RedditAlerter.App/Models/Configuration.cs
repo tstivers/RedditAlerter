@@ -27,6 +27,10 @@ namespace RedditAlerter.App.Models
         public string TwilioFromNumber { get; set; }
         public string TwilioToNumber { get; set; }
 
+        public string SendGridApiKey { get; set; }
+        public string SendGridFromEmail { get; set; }
+        public string SendGridToEmail { get; set; }
+
         public List<SubredditConfig> Subreddits { get; set; }
     }
 }
