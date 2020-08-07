@@ -113,7 +113,7 @@ namespace RedditAlerter.App
                 return;
             }
 
-            Console.WriteLine($"[ignored] {post.Title} - {post.Url}");
+            Console.WriteLine($"{{ignored}} {post.Title}");
         }
     }
 }
