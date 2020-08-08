@@ -64,13 +64,13 @@ namespace RedditAlerter.App
                     match &= Regex.IsMatch(post.Title, pattern, RegexOptions.IgnoreCase);
 
                 if (!match)
-                    break;
+                    continue;
 
                 foreach (var pattern in alert.ExcludePatterns ?? new string[0])
                     match &= !Regex.IsMatch(post.Title, pattern, RegexOptions.IgnoreCase);
 
                 if (!match)
-                    break;
+                    continue;
 
                 // got a match
                 Console.WriteLine($"{{{alert.Name}}} {post.Title} - {post.Url}");
