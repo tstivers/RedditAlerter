@@ -82,7 +82,8 @@ namespace RedditAlerter.App
                     try
                     {
                         var sms = await MessageResource.CreateAsync(
-                            body: $"{post.Title} - {post.Url}",
+                            body: $"[{post.SubredditName}] {post.Title} - {post.Url}",
+                            mediaUrl: new[] { post.Thumbnail }.ToList(),
                             from: new Twilio.Types.PhoneNumber(config.TwilioFromNumber),
                             to: new Twilio.Types.PhoneNumber(config.TwilioToNumber)
                         );
@@ -102,7 +103,7 @@ namespace RedditAlerter.App
                 var msg = new SendGridMessage()
                 {
                     From = new EmailAddress(config.SendGridFromEmail),
-                    Subject = $"{post.Title}",
+                    Subject = $"[{post.SubredditName}] {post.Title}",
                     HtmlContent = $"<p><a href=\"https://reddit.com{post.Permalink}\">{post.Title}</a></p><p><a href=\"{post.Url}\">{post.Url}</a></p>"
                 };
 
