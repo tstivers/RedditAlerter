@@ -83,7 +83,7 @@ namespace RedditAlerter.App
                     {
                         var sms = await MessageResource.CreateAsync(
                             body: $"[{post.SubredditName}] {post.Title} - {post.Url}",
-                            mediaUrl: new[] { post.Thumbnail }.ToList(),
+                            //mediaUrl: new[] { post.Thumbnail }.ToList(),
                             from: new Twilio.Types.PhoneNumber(config.TwilioFromNumber),
                             to: new Twilio.Types.PhoneNumber(config.TwilioToNumber)
                         );
