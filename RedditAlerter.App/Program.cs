@@ -73,7 +73,7 @@ namespace RedditAlerter.App
                     continue;
 
                 // got a match
-                Console.WriteLine($"{{{alert.Name}}} {post.Title} - {post.Url}");
+                Console.WriteLine($"[{post.SubredditName}] [{alert.Name}] {post.Title}");
 
                 bool retry;
                 do
@@ -82,7 +82,7 @@ namespace RedditAlerter.App
                     try
                     {
                         var sms = await MessageResource.CreateAsync(
-                            body: $"[{post.SubredditName}] {post.Title} - {post.Url}",
+                            body: $"[{post.SubredditName}] {post.Title} {post.Url}",
                             //mediaUrl: new[] { post.Thumbnail }.ToList(),
                             from: new Twilio.Types.PhoneNumber(config.TwilioFromNumber),
                             to: new Twilio.Types.PhoneNumber(config.TwilioToNumber)
@@ -114,7 +114,7 @@ namespace RedditAlerter.App
                 return;
             }
 
-            Console.WriteLine($"{{ignored}} {post.Title}");
+            Console.WriteLine($"[ignored] [{post.SubredditName}] {post.Title}");
         }
     }
 }
